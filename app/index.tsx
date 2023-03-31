@@ -11,7 +11,7 @@ export default function Home() {
 		<View className={`flex h-40 w-20 flex-col items-center justify-center`}>
 			<Text>Home</Text>
 
-			<Link href='/Details'>Go To Details</Link>
+			<Link href='/CameraScreen'>Go To Camera</Link>
 
 			<Pressable
 				className='h-20 w-20 bg-accent-normal'
