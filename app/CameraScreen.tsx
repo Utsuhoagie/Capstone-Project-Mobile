@@ -2,8 +2,12 @@ import { View, Text, Pressable, Button, Image } from 'react-native';
 import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Camera, CameraType } from 'expo-camera';
-import { BASE_URL } from '..';
 import axios from 'axios';
+import { debug_log } from '../components/Utils';
+import { API } from '../configs/axios';
+import mime from 'mime';
+import RNFetchBlob from 'react-native-fetch-blob';
+import { useAuthStore } from '../modules/auth/Auth.store';
 
 let camera: Camera | null;
 
@@ -13,6 +17,86 @@ export default function CameraScreen() {
 	const [permissions, requestPermissions] = Camera.useCameraPermissions();
 
 	const [imageUri, setImageUri] = useState<string | null>(null);
+
+	function toggleCamType() {
+		setCamType((camType) =>
+			camType === CameraType.back ? CameraType.front : CameraType.back
+		);
+	}
+
+	async function handleTakePhoto() {
+		if (camera === null) {
+			return;
+		}
+
+		const photo = await camera.takePictureAsync({
+			quality: 0.4,
+			onPictureSaved: async (photo) => {
+				debug_log('photo from params: ', photo);
+
+				setImageUri(photo.uri);
+
+				// Get photo from URI
+				const res = await fetch(photo.uri);
+				const img = await res.blob();
+
+				try {
+					const formData = new FormData();
+					const newImageUri = `file:///${photo.uri.split('file:/').join('')}`;
+
+					const imgData = {
+						name: 'File1.jpeg',
+						type: mime.getType(photo.uri) ?? 'image/jpeg',
+						uri: newImageUri,
+					};
+
+					debug_log(imgData);
+
+					// formData.append('File1', {
+					// 	uri: photo.uri,
+					// 	name: 'File1.jpeg',
+					// 	type: 'image/jpeg',
+					// } as any);
+
+					formData.append('File1', imgData as any);
+
+					debug_log({ formData });
+
+					const uploadRes = await API.post('Files/Upload', formData, {
+						headers: { 'Content-Type': 'multipart/form-data' },
+					});
+					debug_log({ uploadRes: uploadRes.data });
+
+					// const { accessToken } = useAuthStore.getState();
+
+					// const uploadRes = await RNFetchBlob.fetch(
+					// 	'POST',
+					// 	`https://c429-2402-800-63a8-e037-b59a-5c8d-9b07-be17.ap.ngrok.io/api/Files/Upload`,
+					// 	{
+					// 		'Content-Type': 'multipart/form-data',
+					// 		'Authorization': `Bearer ${accessToken}`,
+					// 	},
+					// 	[
+					// 		{
+					// 			name: 'File1',
+					// 			data: RNFetchBlob.wrap(photo.uri),
+					// 		},
+					// 	]
+					// );
+					// const json = uploadRes.data;
+					// debug_log(json);
+
+					// const uploadRes = await API.post('Files/Upload', formData, {
+					// 	headers: { 'Content-Type': 'multipart/form-data' },
+					// });
+					// const json = uploadRes.data;
+					// debug_log({ uploadRes: json });
+				} catch (error) {
+					debug_log(error);
+				}
+			},
+		});
+	}
 
 	if (!permissions) {
 		// Camera permissions are still loading
@@ -29,42 +113,8 @@ export default function CameraScreen() {
 		);
 	}
 
-	function toggleCamType() {
-		setCamType((camType) =>
-			camType === CameraType.back ? CameraType.front : CameraType.back
-		);
-	}
-
-	async function handleTakePhoto() {
-		if (camera === null) {
-			return;
-		}
-
-		const photo = await camera.takePictureAsync({
-			onPictureSaved: async (photo) => {
-				console.log(photo);
-				setImageUri(photo.uri);
-
-				const res = await fetch(photo.uri);
-
-				// console.log({ res });
-
-				const img = await res.blob();
-
-				const uploadRes = await fetch(`${BASE_URL}/Files/Upload`, {
-					method: 'POST',
-					body: img,
-				});
-
-				console.log({ uploadRes: await uploadRes.json() });
-
-				// console.log(img.toString());
-			},
-		});
-	}
-
 	return (
-		<View className='flex h-full w-full flex-col items-center justify-center gap-4 border-green-900 bg-yellow-50'>
+		<View className='flex h-full w-full flex-col items-center justify-start gap-4 border-green-900 bg-yellow-50'>
 			<Text>Camera</Text>
 			<Pressable onPress={() => router.back()}>
 				<Text>Back To Home</Text>
@@ -75,10 +125,9 @@ export default function CameraScreen() {
 			</View>
 
 			{imageUri !== null && (
-				<Image
-					source={{ uri: imageUri }}
-					className='h-20 w-20 border border-orange-400'
-				/>
+				<View className='h-20 w-20 border border-orange-400'>
+					<Image source={{ uri: imageUri }} className='h-full w-full' />
+				</View>
 			)}
 
 			<Camera
@@ -106,18 +155,23 @@ export default function CameraScreen() {
 					// 	}
 					// );
 
-					const res = await fetch(`${BASE_URL}/api/Auth/Login`, {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-						},
-						body: 'aaaa',
-					});
+					debug_log('about to call Files/Test');
 
-					const status = res.ok;
-					console.log({ status });
+					try {
+						const res = await API.get('Files/Test', {
+							headers: {
+								'Content-Type': 'application/json',
+							},
+						});
+
+						debug_log({ data: res.data, status: res.status });
+					} catch (error) {
+						debug_log({ The_Error: error });
+					}
 				}}
-			></Pressable>
+			>
+				<Text>Test</Text>
+			</Pressable>
 
 			<Pressable className='h-12 bg-blue-700 p-4' onPress={handleTakePhoto}>
 				<Text>Take photo</Text>
