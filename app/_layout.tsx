@@ -1,8 +1,9 @@
-import { View, Text } from 'react-native';
+import { View, Text, KeyboardAvoidingView } from 'react-native';
 import React from 'react';
 import { Slot, Stack } from 'expo-router';
 import { useAuthRedirect } from '../modules/auth/Auth.hooks';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { RootSiblingParent } from 'react-native-root-siblings';
 
 const queryClient = new QueryClient();
 
@@ -14,10 +15,15 @@ export default function Layout() {
 		// <Stack initialRouteName='index' />
 		// </AppScreen>
 
-		<QueryClientProvider client={queryClient}>
-			<View className='flex w-full flex-1 flex-col items-center bg-primary-bright-7 pt-16'>
-				<Slot initialRouteName='index' />
-			</View>
-		</QueryClientProvider>
+		<RootSiblingParent>
+			<QueryClientProvider client={queryClient}>
+				<KeyboardAvoidingView
+					// behavior='position'
+					className='flex w-full flex-1 flex-col items-center bg-primary-bright-7 pt-16'
+				>
+					<Slot initialRouteName='index' />
+				</KeyboardAvoidingView>
+			</QueryClientProvider>
+		</RootSiblingParent>
 	);
 }

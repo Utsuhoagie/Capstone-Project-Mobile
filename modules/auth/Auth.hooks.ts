@@ -11,7 +11,7 @@ export function useAuthRedirect() {
 	useEffect(() => {
 		console.log({ accessToken, refreshToken });
 		if (!accessToken) {
-			router.replace('/auth/login');
+			router.replace('/Auth/Login');
 		} else {
 			router.replace('/');
 		}

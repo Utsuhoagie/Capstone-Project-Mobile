@@ -5,7 +5,10 @@ module.exports = {
 	content: [
 		'./App.{js,jsx,ts,tsx}',
 		'./index.{js,jsx,ts,tsx}',
-		'./app/**/*.{js,ts,jsx,tsx}',
+		'./app/**/*.{js,jsx,ts,tsx}',
+		'./components/**/*.{js,jsx,ts,tsx}',
+		'./modules/**/*.{js,jsx,ts,tsx}',
+		'./hooks/**/*.{js,jsx,ts,tsx}',
 	],
 	theme: {
 		fontFamily: {
@@ -17,7 +20,7 @@ module.exports = {
 				'w-button-small': 100,
 				'w-button-medium': 140,
 				'w-button-big': 180,
-				'w-input-medium': 300,
+				'w-input-medium': 200,
 				'w-list-section': 550,
 				// 'w-attachment-section':
 				'w-navbar': 240,

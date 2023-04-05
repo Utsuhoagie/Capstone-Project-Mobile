@@ -8,12 +8,16 @@ export default function Home() {
 	const { unsetLogin } = useAuthStore();
 
 	return (
-		<View className='flex h-40 w-60 flex-col items-center justify-center gap-4 bg-accent-dark'>
-			<Text>Home</Text>
+		<View className='flex h-full w-full flex-col items-center'>
+			<Text className='mb-4'>Home</Text>
 
-			<Link href='CameraScreen'>Go To Camera</Link>
+			<Link className='mt-4' href='CameraScreen'>
+				Go To Camera
+			</Link>
 
-			<Link href='Applicants'>Go To Applicants</Link>
+			<Link className='mt-4' href='MyProfile'>
+				Go To My Profile
+			</Link>
 
 			<Pressable
 				className='h-20 w-20 bg-accent-normal'

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Camera, CameraType } from 'expo-camera';
 import axios from 'axios';
-import { debug_log } from '../components/Utils';
+import { logger } from '../components/Utils';
 import { API } from '../configs/axios';
 import mime from 'mime';
 import RNFetchBlob from 'react-native-fetch-blob';
@@ -32,7 +32,7 @@ export default function CameraScreen() {
 		const photo = await camera.takePictureAsync({
 			quality: 0.4,
 			onPictureSaved: async (photo) => {
-				debug_log('photo from params: ', photo);
+				logger('photo from params: ', photo);
 
 				setImageUri(photo.uri);
 
@@ -50,7 +50,7 @@ export default function CameraScreen() {
 						uri: newImageUri,
 					};
 
-					debug_log(imgData);
+					logger(imgData);
 
 					// formData.append('File1', {
 					// 	uri: photo.uri,
@@ -60,12 +60,12 @@ export default function CameraScreen() {
 
 					formData.append('File1', imgData as any);
 
-					debug_log({ formData });
+					logger({ formData });
 
 					const uploadRes = await API.post('Files/Upload', formData, {
 						headers: { 'Content-Type': 'multipart/form-data' },
 					});
-					debug_log({ uploadRes: uploadRes.data });
+					logger({ uploadRes: uploadRes.data });
 
 					// const { accessToken } = useAuthStore.getState();
 
@@ -92,7 +92,7 @@ export default function CameraScreen() {
 					// const json = uploadRes.data;
 					// debug_log({ uploadRes: json });
 				} catch (error) {
-					debug_log(error);
+					logger(error);
 				}
 			},
 		});
@@ -114,7 +114,7 @@ export default function CameraScreen() {
 	}
 
 	return (
-		<View className='flex h-full w-full flex-col items-center justify-start gap-4 border-green-900 bg-yellow-50'>
+		<View className='flex h-full w-full flex-col items-center justify-start border-green-900 bg-yellow-50'>
 			<Text>Camera</Text>
 			<Pressable onPress={() => router.back()}>
 				<Text>Back To Home</Text>
@@ -155,7 +155,7 @@ export default function CameraScreen() {
 					// 	}
 					// );
 
-					debug_log('about to call Files/Test');
+					logger('about to call Files/Test');
 
 					try {
 						const res = await API.get('Files/Test', {
@@ -164,9 +164,9 @@ export default function CameraScreen() {
 							},
 						});
 
-						debug_log({ data: res.data, status: res.status });
+						logger({ data: res.data, status: res.status });
 					} catch (error) {
-						debug_log({ The_Error: error });
+						logger({ The_Error: error });
 					}
 				}}
 			>
