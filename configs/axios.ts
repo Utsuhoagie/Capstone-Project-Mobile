@@ -11,7 +11,7 @@ const { manifest, expoConfig } = Constants;
 // 	?.split(':')
 // 	.shift()}:5000/api`;
 
-const BASE_URL = `https://d0c6-2402-800-63a8-de03-8dea-bb1-1460-eeee.ap.ngrok.io/api`;
+const BASE_URL = `https://a714-2402-800-63a8-e0cd-ac02-e8d9-fa2-bbee.ap.ngrok.io/api`;
 
 export const AuthAPI = axios.create({
 	baseURL: BASE_URL,

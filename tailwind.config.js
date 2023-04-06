@@ -20,17 +20,23 @@ module.exports = {
 				'w-button-small': 100,
 				'w-button-medium': 140,
 				'w-button-big': 180,
+
 				'w-input-medium': 200,
+				'h-input': 40,
+
 				'w-list-section': 550,
 				// 'w-attachment-section':
 				'w-navbar': 240,
 				'w-toast': 240,
+				'h-toast': 160,
+
 				'w-auth': 450,
 				'h-auth': 450,
-				'h-toast': 160,
-				'h-input': 40,
 				'h-dialog-title': 40,
 				'h-image-section': 250,
+
+				'w-qr-scanner': 320,
+				'h-qr-scanner': 400,
 			},
 			fontSize: {
 				h1: ['32px', { lineHeight: '36px' }],

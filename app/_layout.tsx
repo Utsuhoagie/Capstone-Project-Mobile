@@ -19,7 +19,7 @@ export default function Layout() {
 			<QueryClientProvider client={queryClient}>
 				<KeyboardAvoidingView
 					// behavior='position'
-					className='flex w-full flex-1 flex-col items-center bg-primary-bright-7 pt-16'
+					className='flex w-full flex-1 flex-col items-center bg-primary-bright-7 pt-12'
 				>
 					<Slot initialRouteName='index' />
 				</KeyboardAvoidingView>

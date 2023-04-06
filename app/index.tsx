@@ -11,11 +11,11 @@ export default function Home() {
 		<View className='flex h-full w-full flex-col items-center'>
 			<Text className='mb-4'>Home</Text>
 
-			<Link className='mt-4' href='CameraScreen'>
+			<Link className='mt-4' href='/App/CameraScreen'>
 				Go To Camera
 			</Link>
 
-			<Link className='mt-4' href='MyProfile'>
+			<Link className='mt-4' href='/App/MyProfile'>
 				Go To My Profile
 			</Link>
 
