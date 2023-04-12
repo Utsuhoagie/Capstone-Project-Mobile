@@ -15,6 +15,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { TextInput } from '../../components/atoms/Input/TextInput';
 import Toast from 'react-native-root-toast';
 import { IS_DEVELOPMENT } from '../../configs/app';
+import { useEmployeeStore } from '../../modules/app/Employee/Employee.store';
 
 interface LoginFormValues {
 	Email: string;
@@ -24,6 +25,7 @@ interface LoginFormValues {
 export default function Login() {
 	const router = useRouter();
 	const { setTokens } = useAuthStore();
+	const { setCurrentEmployeeNationalId } = useEmployeeStore();
 
 	const methods = useForm<LoginFormValues>({
 		defaultValues: {
@@ -33,7 +35,7 @@ export default function Login() {
 	});
 
 	const mutation = useMutation('login', async (formData: LoginFormValues) => {
-		const res = await AuthAPI.post('Auth/Login', {
+		const res = await AuthAPI.post('Login', {
 			Email: formData.Email,
 			Password: formData.Password,
 		});
@@ -57,6 +59,7 @@ export default function Login() {
 		}
 
 		setTokens(AccessToken, RefreshToken);
+		setCurrentEmployeeNationalId(claims.NationalId);
 	});
 
 	function handleLogin(rawData: LoginFormValues) {
@@ -97,7 +100,7 @@ export default function Login() {
 							width='medium'
 							title='Emp debug'
 							onPress={() => {
-								methods.setValue('Email', 'g@example.com');
+								methods.setValue('Email', 'f@example.com');
 								methods.setValue('Password', '123456aA');
 							}}
 						/>

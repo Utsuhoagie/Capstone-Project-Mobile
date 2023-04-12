@@ -11,16 +11,25 @@ import { useAuthStore } from '../../modules/auth/Auth.store';
 import Toast from 'react-native-root-toast';
 import { Button } from '../../components/atoms/Button/Button';
 import dayjs from 'dayjs';
+import { JWT_Claims } from '../../modules/auth/Auth.interface';
+import jwtDecode from 'jwt-decode';
+import { AttendanceType } from '../../modules/app/Attendance/Attendance.interface';
 
 let camera: Camera | null;
 
+const CAMERA_QUALITY = 0.2;
+const CAMERA_SCALE = 0.3;
+
 export default function CameraScreen() {
 	const router = useRouter();
-	const [camType, setCamType] = useState(CameraType.back);
+
+	const { accessToken } = useAuthStore();
+	const claims: JWT_Claims = jwtDecode(accessToken ?? '');
+
 	const [permissions, requestPermissions] = Camera.useCameraPermissions();
-
+	const [cameraType, setCameraType] = useState(CameraType.back);
+	const [attendanceType, setAttendanceType] = useState<AttendanceType>('Start');
 	const [imageUri, setImageUri] = useState<string | null>(null);
-
 	const [QRData, setQRData] = useState<string | undefined>(undefined);
 	const isQRScanned = QRData !== undefined;
 
@@ -30,6 +39,8 @@ export default function CameraScreen() {
 		}
 
 		await camera.takePictureAsync({
+			quality: CAMERA_QUALITY,
+			scale: CAMERA_SCALE,
 			onPictureSaved: async (photo) => {
 				logger('photo from params: ', photo);
 
@@ -51,21 +62,20 @@ export default function CameraScreen() {
 
 					logger(imgData);
 
-					// formData.append('File1', {
-					// 	uri: photo.uri,
-					// 	name: 'File1.jpeg',
-					// 	type: 'image/jpeg',
-					// } as any);
-
-					formData.append('Image', imgData as any);
-					formData.append('Hash', QRData ?? '');
-					formData.append('Timestamp', dayjs().toISOString());
+					formData.append('EmployeeNationalId', claims.NationalId);
+					formData.append('QrHash', QRData ?? '');
+					formData.append(`${attendanceType}Timestamp`, dayjs().toISOString());
+					formData.append(`${attendanceType}Image`, imgData as any);
 
 					logger({ formData });
 
-					const uploadRes = await API.post('Files/Attendance', formData, {
-						headers: { 'Content-Type': 'multipart/form-data' },
-					});
+					const uploadRes = await API.post(
+						`Attendances/${attendanceType}`,
+						formData,
+						{
+							headers: { 'Content-Type': 'multipart/form-data' },
+						}
+					);
 					logger({ uploadRes: uploadRes.data });
 				} catch (error) {
 					logger(error);
@@ -97,16 +107,27 @@ export default function CameraScreen() {
 				<Text>Back To Home</Text>
 			</Pressable>
 
-			<View className='h-8 w-20 bg-green-300'>
+			<View className='flex h-8 w-20 flex-row bg-green-300'>
 				<Pressable
 					className='h-full w-full'
 					onPress={() =>
-						setCamType((camType) =>
+						setCameraType((camType) =>
 							camType === CameraType.front ? CameraType.back : CameraType.front
 						)
 					}
 				>
 					<Text>Toggle Cam</Text>
+				</Pressable>
+
+				<Pressable
+					className='h-full w-full'
+					onPress={() =>
+						setAttendanceType((attendanceType) =>
+							attendanceType === 'Start' ? 'End' : 'Start'
+						)
+					}
+				>
+					<Text>Chấm công cho: {attendanceType}</Text>
 				</Pressable>
 			</View>
 			<View className='h-20 w-20 border border-orange-400'>
@@ -123,7 +144,7 @@ export default function CameraScreen() {
 			>
 				<Camera
 					className='h-full w-full'
-					type={camType}
+					type={cameraType}
 					ref={(r) => {
 						camera = r;
 					}}
