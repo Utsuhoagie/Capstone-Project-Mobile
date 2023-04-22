@@ -14,6 +14,9 @@ import dayjs from 'dayjs';
 import { JWT_Claims } from '../../modules/auth/Auth.interface';
 import jwtDecode from 'jwt-decode';
 import { AttendanceType } from '../../modules/app/Attendance/Attendance.interface';
+import { useQuery } from 'react-query';
+import QueryString from 'query-string';
+import { Query_CheckLeave_API_Response } from '../../modules/app/Leave/Leave.interface';
 
 let camera: Camera | null;
 
@@ -32,6 +35,27 @@ export default function CameraScreen() {
 	const [imageUri, setImageUri] = useState<string | null>(null);
 	const [QRData, setQRData] = useState<string | undefined>(undefined);
 	const isQRScanned = QRData !== undefined;
+
+	const checkLeaveQuery = useQuery(
+		[
+			'Check',
+			{
+				NationalId: claims.NationalId,
+				date: dayjs().startOf('day').toISOString(),
+			},
+		],
+		async () => {
+			const params = QueryString.stringify({
+				NationalId: claims.NationalId,
+				date: dayjs().startOf('day').toISOString(),
+			});
+			const res = await API.get(`Leaves/Check?${params}`);
+
+			const { IsOnLeave }: Query_CheckLeave_API_Response = res.data;
+
+			return IsOnLeave;
+		}
+	);
 
 	async function handleTakePhoto(QRData: string) {
 		if (camera === null) {
@@ -98,6 +122,14 @@ export default function CameraScreen() {
 				<Button width='medium' title='Cấp quyền' onPress={requestPermissions} />
 			</View>
 		);
+	}
+
+	if (checkLeaveQuery.isLoading || checkLeaveQuery.isError) {
+		return <Text>Không kiểm tra được ngày nghỉ phép!</Text>;
+	}
+
+	if (checkLeaveQuery.data) {
+		return <Text>Hôm nay là ngày nghỉ phép!</Text>;
 	}
 
 	return (
