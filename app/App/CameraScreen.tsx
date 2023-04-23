@@ -132,6 +132,10 @@ export default function CameraScreen() {
 		return <Text>Hôm nay là ngày nghỉ phép!</Text>;
 	}
 
+	// if (dayjs().day() === 0 || dayjs().day() === 6) {
+	// 	return <Text>Hôm nay là ngày nghỉ!</Text>;
+	// }
+
 	return (
 		<View className='flex h-full w-full flex-col items-center justify-start border-green-900 bg-yellow-50'>
 			<Text>Camera</Text>

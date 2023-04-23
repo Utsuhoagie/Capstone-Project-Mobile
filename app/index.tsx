@@ -11,12 +11,16 @@ export default function Home() {
 		<View className='flex h-full w-full flex-col items-center'>
 			<Text className='mb-4'>Home</Text>
 
-			<Link className='mt-4' href='/App/CameraScreen'>
+			<Link className='mt-4 h-8' href='/App/CameraScreen'>
 				Go To Camera
 			</Link>
 
-			<Link className='mt-4' href='/App/MyProfile'>
+			<Link className='mt-4 h-8' href='/App/MyProfile'>
 				Go To My Profile
+			</Link>
+
+			<Link className='mt-4 h-8' href='/App/AddFeedback'>
+				Go To Add Feedback
 			</Link>
 
 			<Pressable

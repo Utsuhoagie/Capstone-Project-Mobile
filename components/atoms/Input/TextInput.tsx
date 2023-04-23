@@ -1,5 +1,5 @@
 import React from 'react';
-import { Controller } from 'react-hook-form';
+import { Controller, useFormContext } from 'react-hook-form';
 import {
 	TextInput as RNTextInput,
 	TextInputProps as RNTextInputProps,
@@ -11,17 +11,27 @@ export interface TextInputProps extends RNTextInputProps {
 	name: string;
 	label: string;
 	width: 'medium' | 'full';
+
+	mb?: number;
 }
 
 export const TextInput = ({
 	name,
 	label,
 	width,
+	mb,
 	className,
 	...props
 }: TextInputProps) => {
+	const { formState } = useFormContext();
+
+	const error = formState.errors[name];
+
 	return (
-		<View className='flex flex-col'>
+		<View
+			className='flex w-full flex-col'
+			style={{ marginBottom: mb ? mb * 4 : 0 }}
+		>
 			<Text className='mb-1 text-body text-neutral-gray-9'>{label}</Text>
 
 			<Controller
@@ -30,7 +40,7 @@ export const TextInput = ({
 					<RNTextInput
 						{...props}
 						className={
-							' rounded border border-primary-dark-2 bg-neutral-white p-1 ' +
+							' rounded border border-primary-dark-2 bg-neutral-white p-2 ' +
 							(width === 'medium' ? ' w-w-input-medium ' : ' w-full ') +
 							className
 						}
@@ -39,6 +49,12 @@ export const TextInput = ({
 					/>
 				)}
 			/>
+
+			{error && (
+				<Text className='mt-1 h-5 text-body text-state-error-normal'>
+					{error.message?.toString()}
+				</Text>
+			)}
 		</View>
 	);
 };
