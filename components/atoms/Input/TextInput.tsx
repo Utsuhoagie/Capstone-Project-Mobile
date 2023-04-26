@@ -23,7 +23,7 @@ export const TextInput = ({
 	className,
 	...props
 }: TextInputProps) => {
-	const { formState } = useFormContext();
+	const { formState, getValues } = useFormContext();
 
 	const error = formState.errors[name];
 
@@ -40,11 +40,14 @@ export const TextInput = ({
 					<RNTextInput
 						{...props}
 						className={
-							' rounded border border-primary-dark-2 bg-neutral-white p-2 ' +
+							' rounded border border-primary-dark-2 p-2 ' +
 							(width === 'medium' ? ' w-w-input-medium ' : ' w-full ') +
+							(props.editable === false
+								? ' bg-neutral-gray-4 '
+								: ' bg-neutral-white ') +
 							className
 						}
-						value={value}
+						value={value ? `${value}` : ''}
 						onChangeText={onChange}
 					/>
 				)}

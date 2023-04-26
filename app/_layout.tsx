@@ -18,7 +18,10 @@ export default function Layout() {
 		<RootSiblingParent>
 			<QueryClientProvider client={queryClient}>
 				<KeyboardAvoidingView
-					// behavior='position'
+					behavior='position'
+					contentContainerStyle={{
+						width: '100%',
+					}}
 					className='flex w-full flex-1 flex-col items-center bg-primary-bright-7 pt-12'
 				>
 					<Slot initialRouteName='index' />

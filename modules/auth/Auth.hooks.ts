@@ -13,7 +13,7 @@ export function useAuthRedirect() {
 		if (!accessToken) {
 			router.replace('/Auth/Login');
 		} else {
-			router.replace('/');
+			router.replace('/App');
 		}
 	}, [accessToken, refreshToken]);
 }

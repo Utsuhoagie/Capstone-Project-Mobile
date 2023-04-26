@@ -40,7 +40,7 @@ export default function AddFeedback() {
 
 		const res = await API.post('Feedbacks/Create', req);
 
-		if (res.status > 299) {
+		if (res.status >= 400) {
 			Toast.show(`Error! ${res.status}`);
 		} else {
 			Toast.show('Đã gửi ý kiến.');

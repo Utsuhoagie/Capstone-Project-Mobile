@@ -51,7 +51,7 @@ export default function Login() {
 
 		const claims: JWT_Claims = jwtDecode(AccessToken);
 
-		logger(claims);
+		// logger(claims);
 
 		if (claims.Role === 'Admin') {
 			Toast.show('Login with the web instead!');
@@ -63,7 +63,7 @@ export default function Login() {
 	});
 
 	function handleLogin(rawData: LoginFormValues) {
-		logger(rawData);
+		// logger(rawData);
 		mutation.mutate(rawData);
 	}
 

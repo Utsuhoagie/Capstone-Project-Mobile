@@ -80,7 +80,7 @@ export default function CameraScreen() {
 
 					const imgData = {
 						name: 'Image.jpeg',
-						type: mime.getType(photo.uri) ?? 'image/jpeg',
+						type: mime.getType(newImageUri) ?? 'image/jpeg',
 						uri: newImageUri,
 					};
 

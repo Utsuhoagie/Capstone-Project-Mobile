@@ -31,7 +31,7 @@ API.interceptors.request.use(
 	async (config) => {
 		const { accessToken, refreshToken } = useAuthStore.getState();
 
-		config.headers['Accept'] = 'application/json';
+		// config.headers['Accept'] = 'application/json';
 		// config.headers['Content-Type'] = 'application/json';
 		config.headers['Authorization'] = `Bearer ${accessToken}`;
 
