@@ -17,9 +17,9 @@ module.exports = {
 		},
 		extend: {
 			spacing: {
-				'w-button-small': 100,
-				'w-button-medium': 140,
-				'w-button-big': 180,
+				'w-button-small': 80,
+				'w-button-medium': 120,
+				'w-button-big': 160,
 
 				'w-input-medium': 200,
 				'h-input': 40,

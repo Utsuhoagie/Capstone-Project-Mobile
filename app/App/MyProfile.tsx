@@ -30,7 +30,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 
 interface UpdateEmployeeSelfFormIntermediateValues {
-	BirthDate?: string;
+	BirthDate?: Date;
 	Address: string;
 	Phone: string;
 	// Email: string;
@@ -95,7 +95,7 @@ export default function MyProfile() {
 
 	const methods = useForm<UpdateEmployeeSelfFormIntermediateValues>({
 		defaultValues: {
-			BirthDate: BirthDate ? dayjs(BirthDate).toISOString() : '',
+			BirthDate: BirthDate,
 			Address: Address,
 			Phone: Phone,
 			Image: undefined,
@@ -106,9 +106,27 @@ export default function MyProfile() {
 	const queryClient = useQueryClient();
 	const updateSelfMutation = useMutation(
 		'UpdateSelf',
+		// async ({
+		// 	formData,
+		// 	BirthDate,
+		// }: {
+		// 	formData: FormData;
+		// 	BirthDate?: string;
+		// }) => {
 		async (formData: FormData) => {
 			try {
+				// const BirthDate = formData.get('BirthDate');
+
+				/* console.log(
+					'mutation BirthDate = ' + BirthDate,
+					`Employees/UpdateSelf/${NationalId}` +
+						(BirthDate ? `?BirthDate=${BirthDate}` : '')
+				);
+				return; */
+
 				const res = await API.put(
+					// `Employees/UpdateSelf/${NationalId}` +
+					// 	(BirthDate ? `?BirthDate=${BirthDate}` : ''),
 					`Employees/UpdateSelf/${NationalId}`,
 					formData,
 					{ headers: { 'Content-Type': 'multipart/form-data' } }
@@ -132,7 +150,8 @@ export default function MyProfile() {
 	function handleSubmit(rawData: UpdateEmployeeSelfFormIntermediateValues) {
 		logger(rawData);
 
-		const { Address, Phone, BirthDate, Image } = rawData;
+		const { Address, Phone, BirthDate: _BirthDate, Image } = rawData;
+		const BirthDate = _BirthDate ? dayjs(_BirthDate).toISOString() : undefined;
 
 		const formData = new FormData();
 		formData.append('NationalId', NationalId as string);
@@ -146,6 +165,7 @@ export default function MyProfile() {
 		}
 
 		logger(formData);
+		logger('BirthDate = ', BirthDate);
 		updateSelfMutation.mutate(formData);
 	}
 
@@ -191,7 +211,6 @@ export default function MyProfile() {
 							}
 
 							const image = result.assets[0];
-							console.log(image);
 							setImageUri(image.uri);
 
 							const imageAsFile = createImageFromUri(image.uri);
