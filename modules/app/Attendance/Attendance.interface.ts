@@ -2,6 +2,8 @@ import dayjs from 'dayjs';
 
 export type AttendanceType = 'Start' | 'End';
 
+export type CheckAttendanceTodayType = 'Empty' | 'Started' | 'Ended';
+
 export enum Status {
 	Pending = 0,
 	Accepted = 1,

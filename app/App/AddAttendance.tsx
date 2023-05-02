@@ -13,7 +13,10 @@ import { Button } from '../../components/atoms/Button/Button';
 import dayjs from 'dayjs';
 import { JWT_Claims } from '../../modules/auth/Auth.interface';
 import jwtDecode from 'jwt-decode';
-import { AttendanceType } from '../../modules/app/Attendance/Attendance.interface';
+import {
+	AttendanceType,
+	CheckAttendanceTodayType,
+} from '../../modules/app/Attendance/Attendance.interface';
 import { useQuery } from 'react-query';
 import QueryString from 'query-string';
 import { Query_CheckLeave_API_Response } from '../../modules/app/Leave/Leave.interface';
@@ -29,9 +32,30 @@ export default function CameraScreen() {
 	const { accessToken } = useAuthStore();
 	const claims: JWT_Claims = jwtDecode(accessToken ?? '');
 
+	const checkAttendanceTodayQuery = useQuery(
+		[
+			'CheckAttendanceToday',
+			{
+				NationalId: claims.NationalId,
+				date: dayjs().startOf('day').toISOString(),
+			},
+		],
+		async () => {
+			const params = QueryString.stringify({
+				NationalId: claims.NationalId,
+				date: dayjs().startOf('day').toISOString(),
+			});
+			const res = await API.get(`Attendances/CheckAttendanceToday?${params}`);
+
+			const checkAttendanceTodayType: CheckAttendanceTodayType = res.data;
+
+			return checkAttendanceTodayType;
+		}
+	);
+
 	const [permissions, requestPermissions] = Camera.useCameraPermissions();
 	const [cameraType, setCameraType] = useState(CameraType.back);
-	const [attendanceType, setAttendanceType] = useState<AttendanceType>('Start');
+	// const [attendanceType, setAttendanceType] = useState<AttendanceType>('Start');
 	const [imageUri, setImageUri] = useState<string | null>(null);
 	const [QRData, setQRData] = useState<string | undefined>(undefined);
 	const isQRScanned = QRData !== undefined;
@@ -62,6 +86,14 @@ export default function CameraScreen() {
 			return;
 		}
 
+		if (
+			checkAttendanceTodayQuery.isLoading ||
+			checkAttendanceTodayQuery.isError ||
+			checkAttendanceTodayQuery.data === 'Ended'
+		) {
+			return;
+		}
+
 		await camera.takePictureAsync({
 			quality: CAMERA_QUALITY,
 			scale: CAMERA_SCALE,
@@ -69,10 +101,6 @@ export default function CameraScreen() {
 				logger('photo from params: ', photo);
 
 				setImageUri(photo.uri);
-
-				// Get photo from URI
-				// const res = await fetch(photo.uri);
-				// const img = await res.blob();
 
 				try {
 					const formData = new FormData();
@@ -85,6 +113,14 @@ export default function CameraScreen() {
 					};
 
 					logger(imgData);
+
+					// checkAttendanceTodayQuery.data can ONLY be 'Empty' or 'Started' here
+					const attendanceType: AttendanceType =
+						checkAttendanceTodayQuery.data === 'Empty'
+							? 'Start'
+							: checkAttendanceTodayQuery.data === 'Started'
+							? 'End'
+							: 'End';
 
 					formData.append('EmployeeNationalId', claims.NationalId);
 					formData.append('QrHash', QRData ?? '');
@@ -100,7 +136,9 @@ export default function CameraScreen() {
 							headers: { 'Content-Type': 'multipart/form-data' },
 						}
 					);
-					logger({ uploadRes: uploadRes.data });
+
+					router.replace('/App');
+					Toast.show('Đã chấm công!');
 				} catch (error) {
 					logger(error);
 				}
@@ -125,7 +163,7 @@ export default function CameraScreen() {
 	}
 
 	if (checkLeaveQuery.isLoading || checkLeaveQuery.isError) {
-		return <Text>Không kiểm tra được ngày nghỉ phép!</Text>;
+		return <Text>Đang kiểm tra ngày nghỉ phép...</Text>;
 	}
 
 	if (checkLeaveQuery.data) {
@@ -136,9 +174,19 @@ export default function CameraScreen() {
 	// 	return <Text>Hôm nay là ngày nghỉ!</Text>;
 	// }
 
+	if (
+		checkAttendanceTodayQuery.isLoading ||
+		checkAttendanceTodayQuery.isError
+	) {
+		return <Text>Đang kiểm tra trạng thái hôm nay...</Text>;
+	}
+
+	if (checkAttendanceTodayQuery.data === 'Ended') {
+		return <Text>Đã kết thúc chấm công ngày hôm nay!</Text>;
+	}
+
 	return (
 		<View className='flex h-full w-full flex-col items-center justify-start border-green-900 bg-yellow-50'>
-			<Text>Camera</Text>
 			<Pressable onPress={() => router.back()}>
 				<Text>Back To Home</Text>
 			</Pressable>
@@ -152,19 +200,9 @@ export default function CameraScreen() {
 						)
 					}
 				>
-					<Text>Toggle Cam</Text>
+					<Text>Đổi Camera</Text>
 				</Pressable>
-
-				<Pressable
-					className='h-full w-full'
-					onPress={() =>
-						setAttendanceType((attendanceType) =>
-							attendanceType === 'Start' ? 'End' : 'Start'
-						)
-					}
-				>
-					<Text>Chấm công cho: {attendanceType}</Text>
-				</Pressable>
+				<Text>Buổi: {checkAttendanceTodayQuery.data}</Text>
 			</View>
 			<View className='h-20 w-20 border border-orange-400'>
 				{imageUri !== null && (
@@ -189,7 +227,7 @@ export default function CameraScreen() {
 							return;
 						}
 
-						Toast.show(`Đã quét! ${e.data}`);
+						// Toast.show(`Đã quét! ${e.data}`);
 						setQRData(e.data);
 						await handleTakePhoto(e.data);
 					}}

@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View, Text, KeyboardAvoidingView } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { API } from '../../configs/axios';
@@ -171,9 +171,10 @@ export default function MyProfile() {
 
 	return (
 		<FormProvider {...methods}>
-			<View
+			<KeyboardAvoidingView
 				/* className='mt-4 flex w-full flex-col items-center px-4' */
 				className='w-full px-4'
+				behavior='position'
 			>
 				<Text className='text-center text-h3 font-bold'>Hồ sơ cá nhân</Text>
 
@@ -272,7 +273,7 @@ export default function MyProfile() {
 					width='medium'
 					onPress={methods.handleSubmit(handleSubmit)}
 				/>
-			</View>
+			</KeyboardAvoidingView>
 		</FormProvider>
 	);
 }

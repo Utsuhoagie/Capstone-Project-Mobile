@@ -46,16 +46,24 @@ export default function Dashboard() {
 		<View className='flex h-full w-full flex-col items-center'>
 			<Text className='mb-4'>Home</Text>
 
-			<Link className='mt-4 h-8' href='/App/CameraScreen'>
-				Go To Camera
+			<Link className='mt-4 h-8' href='/App/AddAttendance'>
+				Chấm Công
 			</Link>
 
 			<Link className='mt-4 h-8' href='/App/MyProfile'>
-				Go To My Profile
+				Hồ sơ Cá nhân
+			</Link>
+
+			<Link className='mt-4 h-8' href='/App/AddRequest'>
+				Yêu cầu
 			</Link>
 
 			<Link className='mt-4 h-8' href='/App/AddFeedback'>
-				Go To Add Feedback
+				Góp Ý
+			</Link>
+
+			<Link className='mt-4 h-8' href='/App/EXAMPLE'>
+				EXAMPLE
 			</Link>
 
 			<Pressable

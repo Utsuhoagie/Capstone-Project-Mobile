@@ -40,8 +40,10 @@ export const DateInput = ({
 
 	// Value is either '' or ISO string
 	const value = controller.field.value;
-	const isValueEmpty = value === '';
-	const valueDate = isValueEmpty ? dayjs().toDate() : dayjs(value).toDate();
+	const isValueEmpty = value === '' || value === undefined;
+	const valueDate = isValueEmpty
+		? dayjs().add(1, 'day').toDate()
+		: dayjs(value).toDate();
 	const displayDate = isValueEmpty ? '' : dayjs(value).format('DD/MM/YYYY');
 
 	const isEditable = Boolean(editable === true || editable === undefined);
