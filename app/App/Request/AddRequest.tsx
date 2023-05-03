@@ -1,21 +1,21 @@
 import { View, Text } from 'react-native';
 import React from 'react';
-import { TextInput } from '../../components/atoms/Input/TextInput';
+import { TextInput } from '../../../components/atoms/Input/TextInput';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
-import { Button } from '../../components/atoms/Button/Button';
-import { useEmployeeStore } from '../../modules/app/Employee/Employee.store';
+import { Button } from '../../../components/atoms/Button/Button';
+import { useEmployeeStore } from '../../../modules/app/Employee/Employee.store';
 import {
 	AddRequestRequest,
 	RequestType,
-} from '../../modules/app/Request/Request.interface';
+} from '../../../modules/app/Request/Request.interface';
 import dayjs from 'dayjs';
-import { API } from '../../configs/axios';
+import { API } from '../../../configs/axios';
 import Toast from 'react-native-root-toast';
-import SelectInput from '../../components/atoms/Input/SelectInput';
-import { logger } from '../../components/Utils';
-import { DateInput } from '../../components/atoms/Input/DateInput';
+import SelectInput from '../../../components/atoms/Input/SelectInput';
+import { logger } from '../../../components/Utils';
+import { DateInput } from '../../../components/atoms/Input/DateInput';
 import { useRouter } from 'expo-router';
 
 const addRequestSchema = z
@@ -25,7 +25,7 @@ const addRequestSchema = z
 			.min(5, { message: 'Ít nhất 5 kí tự.' })
 			.max(30, { message: 'Nhiều nhất 30 kí tự.' }),
 
-		Description: z.string().max(200, { message: 'Nhiều nhất 200 kí tự.' }),
+		Description: z.string().max(100, { message: 'Nhiều nhất 100 kí tự.' }),
 
 		Type: z.enum(['Raise', 'Leave', 'Other']),
 
@@ -116,14 +116,12 @@ export default function AddRequest() {
 			EmployeeNationalId: currentEmployeeNationalId as string,
 		};
 
-		console.log(req);
-
 		const res = await API.post('Requests/Create', req);
 
 		if (res.status >= 400) {
 			Toast.show(`Error! ${res.status}`);
 		} else {
-			Toast.show('Đã gửi ý kiến.');
+			Toast.show('Đã gửi yêu cầu.');
 			router.back();
 		}
 	}

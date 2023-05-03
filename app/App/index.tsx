@@ -54,7 +54,7 @@ export default function Dashboard() {
 				Hồ sơ Cá nhân
 			</Link>
 
-			<Link className='mt-4 h-8' href='/App/AddRequest'>
+			<Link className='mt-4 h-8' href='/App/Request/MyRequests'>
 				Yêu cầu
 			</Link>
 
