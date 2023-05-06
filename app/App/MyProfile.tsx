@@ -176,7 +176,9 @@ export default function MyProfile() {
 				className='w-full px-4'
 				behavior='position'
 			>
-				<Text className='text-center text-h3 font-bold'>Hồ sơ cá nhân</Text>
+				<Text className='text-center text-h3 font-bold text-primary-normal'>
+					Hồ sơ cá nhân
+				</Text>
 
 				<View className='flex flex-row items-center justify-center'>
 					<Image
@@ -269,7 +271,7 @@ export default function MyProfile() {
 
 				<Button
 					className='mx-auto mt-2'
-					title='Xem form'
+					title='Cập nhật'
 					width='medium'
 					onPress={methods.handleSubmit(handleSubmit)}
 				/>

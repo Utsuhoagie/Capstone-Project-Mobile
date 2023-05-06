@@ -178,6 +178,7 @@ export default function AddRequest() {
 						name='NewSalary'
 						label='Mức lương mới'
 						width='full'
+						mb={4}
 					/>
 				) : undefined}
 

@@ -74,7 +74,7 @@ export const DateInput = ({
 			<Pressable
 				// {...props}
 				// editable={false}
-				android_ripple={{ color: '#00005f', radius: isEditable ? 180 : 0 }}
+				android_ripple={{ radius: isEditable ? 180 : 0 }}
 				onPress={isEditable ? handleOpenDatePicker : undefined}
 				className={
 					' relative h-[46px] rounded border border-primary-dark-2 p-2 ' +

@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View, Text, KeyboardAvoidingView } from 'react-native';
 import React from 'react';
 import { Slot } from 'expo-router';
 
@@ -9,8 +9,12 @@ export default function AuthLayout() {
 			<Text className='mb-4 text-h1 font-bold text-primary-dark-2'>
 				App Name
 			</Text>
-
-			<Slot />
+			<KeyboardAvoidingView
+				behavior='position'
+				contentContainerStyle={{ width: '100%' }}
+			>
+				<Slot />
+			</KeyboardAvoidingView>
 		</View>
 	);
 }

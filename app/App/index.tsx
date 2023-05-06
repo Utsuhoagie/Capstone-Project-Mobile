@@ -9,10 +9,18 @@ import {
 	Employee_API_Response,
 	mapToEmployee,
 } from '../../modules/app/Employee/Employee.interface';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
+import {
+	MaterialIcons,
+	MaterialCommunityIcons,
+	Fontisto,
+	AntDesign,
+	SimpleLineIcons,
+} from '@expo/vector-icons';
 
 export default function Dashboard() {
-	const { unsetLogin } = useAuthStore();
+	const router = useRouter();
+	const { accessToken, unsetLogin } = useAuthStore();
 
 	const { currentEmployeeNationalId, currentEmployee, setCurrentEmployee } =
 		useEmployeeStore();
@@ -34,7 +42,7 @@ export default function Dashboard() {
 			return employee;
 		},
 		{
-			enabled: Boolean(currentEmployeeNationalId),
+			enabled: Boolean(currentEmployeeNationalId) && Boolean(accessToken),
 		}
 	);
 
@@ -44,33 +52,67 @@ export default function Dashboard() {
 
 	return (
 		<View className='flex h-full w-full flex-col items-center'>
-			<Text className='mb-4'>Home</Text>
-
-			<Link className='mt-4 h-8' href='/App/AddAttendance'>
-				Chấm Công
-			</Link>
-
-			<Link className='mt-4 h-8' href='/App/MyProfile'>
-				Hồ sơ Cá nhân
-			</Link>
-
-			<Link className='mt-4 h-8' href='/App/Request/MyRequests'>
-				Yêu cầu
-			</Link>
-
-			<Link className='mt-4 h-8' href='/App/AddFeedback'>
-				Góp Ý
-			</Link>
-
-			<Link className='mt-4 h-8' href='/App/EXAMPLE'>
-				EXAMPLE
-			</Link>
+			<Text className='text-h3 font-bold text-primary-normal'>
+				Xin chào {employeeQuery.data.FullName}.
+			</Text>
 
 			<Pressable
-				className='h-20 w-20 bg-accent-normal'
-				onPress={() => unsetLogin()}
+				className='mt-6 flex h-40 w-40 flex-col items-center rounded border-2 border-secondary-dark-2 bg-neutral-white p-6 shadow'
+				onPress={() => router.push('/App/AddAttendance')}
+				android_ripple={{
+					radius: 120,
+				}}
 			>
-				<Text>Log out</Text>
+				<MaterialCommunityIcons name='briefcase-clock-outline' size={56} />
+				<Text className='mt-6 w-full text-center text-h4'>Chấm Công</Text>
+			</Pressable>
+
+			<View className='mt-4 flex w-full flex-row justify-evenly'>
+				<Pressable
+					className='mt-4 flex h-32 w-32 flex-col items-center rounded border-2 border-secondary-dark-2 bg-neutral-white py-5 px-8 shadow'
+					onPress={() => router.push('/App/MyProfile')}
+					android_ripple={{ radius: 100 }}
+				>
+					<Fontisto name='person' size={44} />
+					<Text className='mt-3 w-full text-center text-body'>
+						Hồ sơ Cá nhân
+					</Text>
+				</Pressable>
+				<Pressable
+					className='mt-4 flex h-32 w-32 flex-col items-center rounded border-2 border-secondary-dark-2 bg-neutral-white py-5 px-8 shadow'
+					onPress={() => router.push('/App/Request/MyRequests')}
+					android_ripple={{ radius: 100 }}
+				>
+					<AntDesign name='addfile' size={44} />
+					<Text className='mt-3 w-full text-center text-body'>Yêu cầu</Text>
+				</Pressable>
+			</View>
+
+			<View className='mt-4 flex w-full flex-row justify-evenly'>
+				<Pressable
+					className='mt-4 flex h-32 w-32 flex-col items-center rounded border-2 border-secondary-dark-2 bg-neutral-white py-5 px-8 shadow'
+					onPress={() => router.push('/App/AddFeedback')}
+					android_ripple={{ radius: 100 }}
+				>
+					<SimpleLineIcons name='speech' size={44} />
+					<Text className='mt-3 w-full text-center text-body'>Góp ý</Text>
+				</Pressable>
+
+				<Pressable
+					className='mt-4 flex h-32 w-32 flex-col items-center rounded border-2 border-secondary-dark-2 bg-neutral-white py-5 px-6 shadow'
+					onPress={() => unsetLogin()}
+					android_ripple={{ radius: 100 }}
+				>
+					<MaterialIcons name='logout' size={44} />
+					<Text className='mt-3 w-full text-center text-body'>Đăng xuất</Text>
+				</Pressable>
+			</View>
+
+			<Pressable
+				className='mt-4 h-12 border'
+				onPress={() => router.push('/App/EXAMPLE')}
+			>
+				<Text>EXAMPLE</Text>
 			</Pressable>
 		</View>
 	);

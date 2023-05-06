@@ -17,52 +17,47 @@ import Toast from 'react-native-root-toast';
 import { IS_DEVELOPMENT } from '../../configs/app';
 import { useEmployeeStore } from '../../modules/app/Employee/Employee.store';
 
-interface LoginFormValues {
+interface RegisterFormValues {
 	Email: string;
 	Password: string;
+	PasswordConfirm: string;
 }
 
-export default function Login() {
+export default function Register() {
 	const router = useRouter();
 	const { setTokens } = useAuthStore();
 	const { setCurrentEmployeeNationalId } = useEmployeeStore();
 
-	const methods = useForm<LoginFormValues>({
+	const methods = useForm<RegisterFormValues>({
 		defaultValues: {
 			Email: '',
 			Password: '',
+			PasswordConfirm: '',
 		},
 	});
 
-	const mutation = useMutation('login', async (formData: LoginFormValues) => {
-		const res = await AuthAPI.post('Login', {
-			Email: formData.Email,
-			Password: formData.Password,
-		});
-
-		if (res.status !== 200) {
-			Toast.show(`Error login, ${res.status}, ${res.data}`, {
-				duration: Toast.durations.SHORT,
+	const mutation = useMutation(
+		'register',
+		async (formData: RegisterFormValues) => {
+			const res = await AuthAPI.post('RegisterEmployee', {
+				Email: formData.Email,
+				Password: formData.Password,
+				PasswordConfirm: formData.PasswordConfirm,
 			});
-			return;
+
+			if (res.status >= 400) {
+				Toast.show(`Lỗi đăng kí, ${res.status}, ${res.data}`, {
+					duration: Toast.durations.SHORT,
+				});
+				return;
+			}
+
+			Toast.show('Đăng kí thành công!');
+			router.replace('/Auth/Login');
 		}
+	);
 
-		const { AccessToken, RefreshToken }: Auth_API_Response = res.data;
-
-		const claims: JWT_Claims = jwtDecode(AccessToken);
-
-		// logger(claims);
-
-		if (claims.Role === 'Admin') {
-			Toast.show('Login with the web instead!');
-			return;
-		}
-
-		setTokens(AccessToken, RefreshToken);
-		setCurrentEmployeeNationalId(claims.NationalId);
-	});
-
-	function handleLogin(rawData: LoginFormValues) {
+	function handleRegister(rawData: RegisterFormValues) {
 		// logger(rawData);
 		mutation.mutate(rawData);
 	}
@@ -78,18 +73,25 @@ export default function Login() {
 					width='medium'
 					secureTextEntry
 				/>
+				<TextInput
+					className='mb-4'
+					name='PasswordConfirm'
+					label='Nhập lại mật khẩu'
+					width='medium'
+					secureTextEntry
+				/>
 				<Button
 					className='mt-4'
 					width='medium'
-					onPress={methods.handleSubmit(handleLogin)}
-					title='Đăng nhập'
+					onPress={methods.handleSubmit(handleRegister)}
+					title='Đăng kí'
 				/>
 				<Button
 					secondary
 					className='mt-4'
 					width='medium'
-					onPress={() => router.push('/Auth/Register')}
-					title='Đăng kí'
+					onPress={() => router.push('/Auth/Login')}
+					title='Đăng nhập'
 				/>
 				{IS_DEVELOPMENT && (
 					<>
