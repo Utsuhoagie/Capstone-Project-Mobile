@@ -1,7 +1,7 @@
 import { View, Text, KeyboardAvoidingView } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
-import { API } from '../../configs/axios';
+import { API, BASE_URL } from '../../configs/axios';
 
 import dayjs, { Dayjs } from 'dayjs';
 import { logger } from '../../components/Utils';
@@ -28,6 +28,7 @@ import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { DateInput } from '../../components/atoms/Input/DateInput';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
+// import PLACEHOLDER_PERSON_IMAGE from '../../assets/PLACEHOLDER_PERSON_IMAGE.png';
 
 interface UpdateEmployeeSelfFormIntermediateValues {
 	BirthDate?: Date;
@@ -176,27 +177,33 @@ export default function MyProfile() {
 				className='w-full px-4'
 				behavior='position'
 			>
-				<Text className='text-center text-h3 font-bold text-primary-normal'>
+				<Text className='text-center text-h2 font-bold text-primary-normal'>
 					Hồ sơ cá nhân
 				</Text>
 
 				<View className='flex flex-row items-center justify-center'>
 					<Image
 						className='my-2 mr-2 h-36 w-36'
-						source={{
-							// uri: photoUri,
-							uri: imageUri
-								? imageUri
-								: `https://5277-125-235-191-73.ngrok-free.app/api/Files/Image/Employees/${ImageFileName}?random=${Math.random()}`,
-							// method: 'GET',
-							// headers: {
-							// 	'Cache-Control': 'no-store',
-							// },
-							// cache: 'reload',
-							// uri: URL.createObjectURL(photoQuery.data),
-							// uri: fr.result as string,
-							// uri: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADMAAAAzCAYAAAA6oTAqAAAAEXRFWHRTb2Z0d2FyZQBwbmdjcnVzaEB1SfMAAABQSURBVGje7dSxCQBACARB+2/ab8BEeQNhFi6WSYzYLYudDQYGBgYGBgYGBgYGBgYGBgZmcvDqYGBgmhivGQYGBgYGBgYGBgYGBgYGBgbmQw+P/eMrC5UTVAAAAABJRU5ErkJggg==',
-						}}
+						source={
+							imageUri || ImageFileName
+								? {
+										// uri: photoUri,
+										uri: imageUri
+											? imageUri
+											: ImageFileName
+											? `${BASE_URL}/Files/Image/Employees/${ImageFileName}?random=${Math.random()}`
+											: undefined,
+										// method: 'GET',
+										// headers: {
+										// 	'Cache-Control': 'no-store',
+										// },
+										// cache: 'reload',
+										// uri: URL.createObjectURL(photoQuery.data),
+										// uri: fr.result as string,
+										// uri: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADMAAAAzCAYAAAA6oTAqAAAAEXRFWHRTb2Z0d2FyZQBwbmdjcnVzaEB1SfMAAABQSURBVGje7dSxCQBACARB+2/ab8BEeQNhFi6WSYzYLYudDQYGBgYGBgYGBgYGBgYGBgZmcvDqYGBgmhivGQYGBgYGBgYGBgYGBgYGBgbmQw+P/eMrC5UTVAAAAABJRU5ErkJggg==',
+								  }
+								: require('../../assets/PLACEHOLDER_PERSON_IMAGE.png')
+						}
 					/>
 
 					<Button

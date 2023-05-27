@@ -4,9 +4,8 @@ import { useRouter } from 'expo-router';
 import { Camera, CameraType } from 'expo-camera';
 import axios from 'axios';
 import { logger } from '../../components/Utils';
-import { API } from '../../configs/axios';
+import { API, handleErrorAPI } from '../../configs/axios';
 import mime from 'mime';
-import RNFetchBlob from 'react-native-fetch-blob';
 import { useAuthStore } from '../../modules/auth/Auth.store';
 import Toast from 'react-native-root-toast';
 import { Button } from '../../components/atoms/Button/Button';
@@ -17,9 +16,10 @@ import {
 	AttendanceType,
 	CheckAttendanceTodayType,
 } from '../../modules/app/Attendance/Attendance.interface';
-import { useQuery } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import QueryString from 'query-string';
 import { Query_CheckLeave_API_Response } from '../../modules/app/Leave/Leave.interface';
+import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 
 let camera: Camera | null;
 
@@ -81,7 +81,32 @@ export default function CameraScreen() {
 		}
 	);
 
+	const addAttendanceMutation = useMutation(
+		'Attendance',
+		async ({
+			formData,
+			attendanceType,
+		}: {
+			formData: FormData;
+			attendanceType: AttendanceType;
+		}) => {
+			try {
+				const uploadRes = await API.post(
+					`Attendances/${attendanceType}`,
+					formData,
+					{
+						headers: { 'Content-Type': 'multipart/form-data' },
+					}
+				);
+			} catch (error) {
+				handleErrorAPI(error);
+			}
+		}
+	);
+
 	async function handleTakePhoto(QRData: string) {
+		// return;
+
 		if (camera === null) {
 			return;
 		}
@@ -102,46 +127,36 @@ export default function CameraScreen() {
 
 				setImageUri(photo.uri);
 
-				try {
-					const formData = new FormData();
-					const newImageUri = `file:///${photo.uri.split('file:/').join('')}`;
+				const formData = new FormData();
+				const newImageUri = `file:///${photo.uri.split('file:/').join('')}`;
 
-					const imgData = {
-						name: 'Image.jpeg',
-						type: mime.getType(newImageUri) ?? 'image/jpeg',
-						uri: newImageUri,
-					};
+				const imgData = {
+					name: 'Image.jpeg',
+					type: mime.getType(newImageUri) ?? 'image/jpeg',
+					uri: newImageUri,
+				};
 
-					logger(imgData);
+				logger(imgData);
 
-					// checkAttendanceTodayQuery.data can ONLY be 'Empty' or 'Started' here
-					const attendanceType: AttendanceType =
-						checkAttendanceTodayQuery.data === 'Empty'
-							? 'Start'
-							: checkAttendanceTodayQuery.data === 'Started'
-							? 'End'
-							: 'End';
+				// checkAttendanceTodayQuery.data can ONLY be 'Empty' or 'Started' here
+				const attendanceType: AttendanceType =
+					checkAttendanceTodayQuery.data === 'Empty'
+						? 'Start'
+						: checkAttendanceTodayQuery.data === 'Started'
+						? 'End'
+						: 'End';
 
-					formData.append('EmployeeNationalId', claims.NationalId);
-					formData.append('QrHash', QRData ?? '');
-					formData.append(`${attendanceType}Timestamp`, dayjs().toISOString());
-					formData.append(`${attendanceType}Image`, imgData as any);
+				formData.append('EmployeeNationalId', claims.NationalId);
+				formData.append('QrHash', QRData ?? '');
+				formData.append(`${attendanceType}Timestamp`, dayjs().toISOString());
+				formData.append(`${attendanceType}Image`, imgData as any);
 
-					logger({ formData });
+				logger({ formData });
 
-					const uploadRes = await API.post(
-						`Attendances/${attendanceType}`,
-						formData,
-						{
-							headers: { 'Content-Type': 'multipart/form-data' },
-						}
-					);
+				addAttendanceMutation.mutate({ formData, attendanceType });
 
-					router.replace('/App');
-					Toast.show('Đã chấm công!');
-				} catch (error) {
-					logger(error);
-				}
+				router.replace('/App');
+				Toast.show('Đã chấm công!');
 			},
 		});
 	}
@@ -167,7 +182,17 @@ export default function CameraScreen() {
 	}
 
 	if (checkLeaveQuery.data) {
-		return <Text>Hôm nay là ngày nghỉ phép!</Text>;
+		return (
+			<View className='flex h-full w-full flex-col items-center justify-start'>
+				<Text className='text-h2 font-semibold text-primary-normal'>
+					Chấm công
+				</Text>
+				<View className='mx-5 mt-4 flex w-fit flex-row items-center rounded-lg bg-state-warning-bright p-2'>
+					<MaterialIcons name='warning' color='orange' size={32} />
+					<Text className='ml-2'>Hôm nay là ngày nghỉ phép!</Text>
+				</View>
+			</View>
+		);
 	}
 
 	// if (dayjs().day() === 0 || dayjs().day() === 6) {
@@ -182,16 +207,31 @@ export default function CameraScreen() {
 	}
 
 	if (checkAttendanceTodayQuery.data === 'Ended') {
-		return <Text>Đã kết thúc chấm công ngày hôm nay!</Text>;
+		return (
+			<View className='flex h-full w-full flex-col items-center justify-start'>
+				<Text className='text-h2 font-semibold text-primary-normal'>
+					Chấm công
+				</Text>
+				<View className='mx-5 mt-4 flex w-fit flex-row items-center rounded-lg bg-state-success-bright p-2'>
+					<MaterialIcons name='check' color='green' size={32} />
+					<Text className='ml-2'>Đã kết thúc chấm công ngày hôm nay!</Text>
+				</View>
+			</View>
+		);
+	}
+
+	if (addAttendanceMutation.isLoading) {
+		return <Text className='m-auto'>Đang chấm...</Text>;
 	}
 
 	return (
-		<View className='flex h-full w-full flex-col items-center justify-start border-green-900 bg-yellow-50'>
-			<Pressable onPress={() => router.back()}>
-				<Text>Back To Home</Text>
-			</Pressable>
+		<View className='flex h-full w-full flex-col items-center justify-start'>
+			<Text className='text-h2 font-semibold text-primary-normal'>
+				Chấm công (
+				{checkAttendanceTodayQuery.data === 'Empty' ? 'Bắt đầu' : 'Kết thúc'})
+			</Text>
 
-			<View className='flex h-8 w-20 flex-row bg-green-300'>
+			{/* <View className='flex h-8 w-20 flex-row bg-green-300'>
 				<Pressable
 					className='h-full w-full'
 					onPress={() =>
@@ -202,15 +242,36 @@ export default function CameraScreen() {
 				>
 					<Text>Đổi Camera</Text>
 				</Pressable>
-				<Text>Buổi: {checkAttendanceTodayQuery.data}</Text>
+			</View> */}
+
+			<View className='mx-5 mt-4 flex w-fit flex-row items-center rounded-lg bg-primary-bright-5 p-2'>
+				<MaterialIcons name='info' color='blue' size={32} />
+				<Text className='ml-2'>
+					Chú ý: Hình sẽ được chụp tự động khi quét được mã QR. Bạn nên chụp sao
+					cho thấy được cả khuôn mặt và mã QR trong hình.
+				</Text>
 			</View>
-			<View className='h-20 w-20 border border-orange-400'>
+
+			<Pressable
+				android_ripple={{ radius: 28 }}
+				className='mt-8 rounded-lg border border-neutral-gray-7 bg-neutral-gray-1'
+				onPress={() =>
+					setCameraType((camType) =>
+						camType === CameraType.front ? CameraType.back : CameraType.front
+					)
+				}
+			>
+				<Ionicons name='camera-reverse-outline' size={44} />
+			</Pressable>
+
+			{/* <View className='h-20 w-20 border border-orange-400'>
 				{imageUri !== null && (
 					<Image source={{ uri: imageUri }} className='h-full w-full' />
 				)}
-			</View>
+			</View> */}
+
 			<View
-				className={`h-h-qr-scanner w-w-qr-scanner border-2 ${
+				className={`mt-8 h-h-qr-scanner w-w-qr-scanner rounded border-2 ${
 					isQRScanned
 						? ' border-state-success-normal '
 						: ' border-state-error-normal '
@@ -236,11 +297,12 @@ export default function CameraScreen() {
 
 			{/* <Button width='medium' title='Chụp' onPress={() => handleTakePhoto} /> */}
 
-			<Button
+			{/* <Button
 				width='medium'
 				title='Quét lại'
 				onPress={() => setQRData(undefined)}
-			/>
+			/> */}
+			<Pressable className='h-20 w-80' onPress={() => setQRData(undefined)} />
 		</View>
 	);
 }

@@ -3,7 +3,7 @@ import React from 'react';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../modules/auth/Auth.store';
 import { useMutation } from 'react-query';
-import { AuthAPI } from '../../configs/axios';
+import { AuthAPI, handleErrorAPI } from '../../configs/axios';
 import {
 	Auth_API_Response,
 	JWT_Claims,
@@ -35,35 +35,37 @@ export default function Login() {
 	});
 
 	const mutation = useMutation('login', async (formData: LoginFormValues) => {
-		const res = await AuthAPI.post('Login', {
-			Email: formData.Email,
-			Password: formData.Password,
-		});
-
-		if (res.status !== 200) {
-			Toast.show(`Error login, ${res.status}, ${res.data}`, {
-				duration: Toast.durations.SHORT,
+		try {
+			const res = await AuthAPI.post('Login', {
+				Email: formData.Email,
+				Password: formData.Password,
 			});
-			return;
+
+			if (res.status !== 200) {
+				Toast.show(`Error login, ${res.status}, ${res.data}`, {
+					duration: Toast.durations.SHORT,
+				});
+				return;
+			}
+
+			const { AccessToken, RefreshToken }: Auth_API_Response = res.data;
+
+			const claims: JWT_Claims = jwtDecode(AccessToken);
+
+			setTokens(AccessToken, RefreshToken);
+			setCurrentEmployeeNationalId(claims.NationalId);
+		} catch (error) {
+			handleErrorAPI(error);
 		}
-
-		const { AccessToken, RefreshToken }: Auth_API_Response = res.data;
-
-		const claims: JWT_Claims = jwtDecode(AccessToken);
-
-		// logger(claims);
-
-		if (claims.Role === 'Admin') {
-			Toast.show('Login with the web instead!');
-			return;
-		}
-
-		setTokens(AccessToken, RefreshToken);
-		setCurrentEmployeeNationalId(claims.NationalId);
 	});
 
 	function handleLogin(rawData: LoginFormValues) {
 		// logger(rawData);
+		if (rawData.Email === 'master@example.com') {
+			Toast.show('Login with the web instead!');
+			return;
+		}
+
 		mutation.mutate(rawData);
 	}
 
@@ -91,29 +93,29 @@ export default function Login() {
 					onPress={() => router.push('/Auth/Register')}
 					title='Đăng kí'
 				/>
-				{IS_DEVELOPMENT && (
-					<>
-						<Button
-							className='mt-6'
-							width='medium'
-							title='Admin debug'
-							onPress={() => {
-								methods.setValue('Email', 'master@example.com');
-								methods.setValue('Password', '123456aA');
-							}}
-						/>
-						<Button
-							className='mt-2'
-							width='medium'
-							title='Emp debug'
-							onPress={() => {
-								methods.setValue('Email', 'a@example.com');
-								methods.setValue('Password', '123456aA');
-							}}
-						/>
-					</>
-				)}
 			</View>
+			{IS_DEVELOPMENT && (
+				<>
+					<Button
+						className='mt-6'
+						width='medium'
+						title='Admin debug'
+						onPress={() => {
+							methods.setValue('Email', 'b@example.com');
+							methods.setValue('Password', '123456aA');
+						}}
+					/>
+					<Button
+						className='mt-2'
+						width='medium'
+						title='Emp debug'
+						onPress={() => {
+							methods.setValue('Email', 'a@example.com');
+							methods.setValue('Password', '123456aA');
+						}}
+					/>
+				</>
+			)}
 		</FormProvider>
 	);
 }

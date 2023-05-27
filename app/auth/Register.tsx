@@ -3,7 +3,7 @@ import React from 'react';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../modules/auth/Auth.store';
 import { useMutation } from 'react-query';
-import { AuthAPI } from '../../configs/axios';
+import { AuthAPI, handleErrorAPI } from '../../configs/axios';
 import {
 	Auth_API_Response,
 	JWT_Claims,
@@ -39,21 +39,18 @@ export default function Register() {
 	const mutation = useMutation(
 		'register',
 		async (formData: RegisterFormValues) => {
-			const res = await AuthAPI.post('RegisterEmployee', {
-				Email: formData.Email,
-				Password: formData.Password,
-				PasswordConfirm: formData.PasswordConfirm,
-			});
-
-			if (res.status >= 400) {
-				Toast.show(`Lỗi đăng kí, ${res.status}, ${res.data}`, {
-					duration: Toast.durations.SHORT,
+			try {
+				const res = await AuthAPI.post('RegisterEmployee', {
+					Email: formData.Email,
+					Password: formData.Password,
+					PasswordConfirm: formData.PasswordConfirm,
 				});
-				return;
-			}
 
-			Toast.show('Đăng kí thành công!');
-			router.replace('/Auth/Login');
+				Toast.show('Đăng kí thành công!');
+				router.replace('/Auth/Login');
+			} catch (error) {
+				handleErrorAPI(error);
+			}
 		}
 	);
 

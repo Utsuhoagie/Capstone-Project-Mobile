@@ -52,9 +52,18 @@ export default function Dashboard() {
 
 	return (
 		<View className='flex h-full w-full flex-col items-center'>
-			<Text className='text-h3 font-bold text-primary-normal'>
+			<Text className='text-h2 font-bold text-primary-normal'>
 				Xin chào {employeeQuery.data.FullName}.
 			</Text>
+
+			<Pressable
+				className='mt-4 mr-4 flex h-8 w-16 flex-col items-center self-end rounded border-2 border-secondary-dark-2 bg-neutral-white shadow'
+				onPress={() => unsetLogin()}
+				android_ripple={{ radius: 100 }}
+			>
+				<MaterialIcons name='logout' size={24} />
+				<Text className='mt-3 w-full text-center text-tag'>Đăng xuất</Text>
+			</Pressable>
 
 			<Pressable
 				className='mt-6 flex h-40 w-40 flex-col items-center rounded border-2 border-secondary-dark-2 bg-neutral-white p-6 shadow'
@@ -90,6 +99,16 @@ export default function Dashboard() {
 
 			<View className='mt-4 flex w-full flex-row justify-evenly'>
 				<Pressable
+					className='mt-4 flex h-32 w-32 flex-col items-center rounded border-2 border-secondary-dark-2 bg-neutral-white py-5 px-6 shadow'
+					onPress={() => router.push('/App/MyLeaves')}
+					android_ripple={{ radius: 100 }}
+				>
+					<MaterialCommunityIcons name='calendar-month' size={44} />
+					<Text className='mt-3 w-full text-center text-body'>
+						Các ngày nghỉ phép
+					</Text>
+				</Pressable>
+				<Pressable
 					className='mt-4 flex h-32 w-32 flex-col items-center rounded border-2 border-secondary-dark-2 bg-neutral-white py-5 px-8 shadow'
 					onPress={() => router.push('/App/AddFeedback')}
 					android_ripple={{ radius: 100 }}
@@ -97,23 +116,14 @@ export default function Dashboard() {
 					<SimpleLineIcons name='speech' size={44} />
 					<Text className='mt-3 w-full text-center text-body'>Góp ý</Text>
 				</Pressable>
-
-				<Pressable
-					className='mt-4 flex h-32 w-32 flex-col items-center rounded border-2 border-secondary-dark-2 bg-neutral-white py-5 px-6 shadow'
-					onPress={() => unsetLogin()}
-					android_ripple={{ radius: 100 }}
-				>
-					<MaterialIcons name='logout' size={44} />
-					<Text className='mt-3 w-full text-center text-body'>Đăng xuất</Text>
-				</Pressable>
 			</View>
 
-			<Pressable
+			{/* <Pressable
 				className='mt-4 h-12 border'
 				onPress={() => router.push('/App/EXAMPLE')}
 			>
 				<Text>EXAMPLE</Text>
-			</Pressable>
+			</Pressable> */}
 		</View>
 	);
 }

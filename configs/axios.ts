@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useAuthStore } from '../modules/auth/Auth.store';
 import { Auth_API_Response } from '../modules/auth/Auth.interface';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-root-toast';
 
 const { manifest, expoConfig } = Constants;
 
@@ -11,7 +12,7 @@ const { manifest, expoConfig } = Constants;
 // 	?.split(':')
 // 	.shift()}:5000/api`;
 
-const BASE_URL = `https://5277-125-235-191-73.ngrok-free.app/api`;
+export const BASE_URL = `https://02cf-2402-800-63a8-8eb7-1ce4-bbfa-359d-5cfb.ngrok-free.app/api`;
 
 export const AuthAPI = axios.create({
 	baseURL: `${BASE_URL}/Auth`,
@@ -78,8 +79,21 @@ API.interceptors.response.use(
 			if (error.response.status === 403 && error.response.data) {
 				return Promise.reject(error.response.data);
 			}
-		}
 
-		return Promise.reject(error);
+			return Promise.reject(error);
+		}
 	}
 );
+
+export function handleErrorAPI(error: any) {
+	const data = error.response.data;
+	const message =
+		typeof data.ErrorMessage === 'string'
+			? data.ErrorMessage
+			: typeof data === 'string'
+			? data
+			: Array.isArray(data.Errors)
+			? data.Errors[0].Description
+			: 'Có lỗi xảy ra.';
+	Toast.show(message);
+}
